@@ -1,32 +1,22 @@
-interface Post {
-  id: number;
-  title: string;
-  body: string;
-}
+import { db } from "@/lib/db";
 
-type Props = {
-  params: Promise<{
-    id: string;
-  }>;
-};
-
-export default async function PostDetails({ params }: Props) {
+export default async function PostDetails({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
 
- const res = await fetch(`http://localhost:3000/api/posts/${id}`, {
-  cache: "no-store",
-});
+  const post = await db.post.findUnique({
+    where: { id: Number(id) },
+  });
 
-  if (!res.ok) {
-    throw new Error("Post not found");
-  }
-
-  const post = await res.json();
+  if (!post) return <div>Post not found</div>;
 
   return (
-    <div>
-      <h1>{post.title}</h1>
-      <p>{post.body}</p>
+    <div className="max-w-xl mx-auto">
+      <h1 className="text-2xl font-bold">{post.title}</h1>
+      <p className="mt-4 text-gray-600">{post.body}</p>
     </div>
   );
 }
